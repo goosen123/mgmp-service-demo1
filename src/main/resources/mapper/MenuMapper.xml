@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.goosen.commons.dao.MenuMapper">
+
+    <sql id="paramsColumns">
+		a.id,
+		a.code,
+		a.pcode,
+		a.pcodes,
+		a.name,
+		a.icon,
+		a.url,
+		a.num,
+		a.levels,
+		a.ismenu,
+		a.tips,
+		a.status,
+		a.isopen,
+		a.createTime,
+		a.updateTime
+	</sql>
+	
+	<select id="findByParams" resultType="map">
+		SELECT 
+			<include refid="paramsColumns"/>
+		FROM sys_menu a
+		<where>
+			<if test="name != null and name != ''">
+				AND a.name LIKE CONCAT('%', #{productTitle}, '%')
+			</if>
+			<if test="pcodes != null and pcodes != ''">
+				AND a.pcodes LIKE CONCAT('%[', #{pcodes}, ']%')
+			</if> 
+			<if test="id != null and id != ''">
+				AND a.id  = #{id}
+			</if>
+			<if test="ids != null and ids.size > 0">
+		        AND a.id IN
+		        <foreach collection="ids" item="idItem" index="index" open="(" close=")" separator=",">
+		            #{idItem}
+		        </foreach>
+		    </if>
+			<if test="code != null and code != ''">
+				AND a.code  = #{code}
+			</if>
+		</where>
+	</select>
+	
+</mapper>

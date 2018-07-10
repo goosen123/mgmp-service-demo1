@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.goosen.commons.dao.OrdersMapper">
+
+    <sql id="paramsColumns">
+		a.id,
+		a.userId,
+		a.userName,
+		a.code,
+		a.orderTitle,
+		a.totalCost,
+		a.totalVolume,
+		a.orderStatus,
+		a.isPay,
+		a.payWay,
+		a.payWayDetail,
+		a.orderRemark,
+		a.createTime,
+		a.updateTime
+	</sql>
+	
+	<!-- <sql id="paramsUserJoins">
+		JOIN hhhh h ON h.id = a.mobile_phone
+	</sql> -->
+	
+	<select id="findByParams" resultType="map">
+		SELECT 
+			<include refid="paramsColumns"/>
+		FROM orders a
+		<!-- <include refid="paramsUserJoins"/> -->
+		<where>
+			<if test="orderTitle != null and orderTitle != ''">
+				AND a.orderTitle LIKE CONCAT('%', #{orderTitle}, '%')
+			</if> 
+			<if test="id != null and id != ''">
+				AND a.id  = #{id}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.userId  = #{userId}
+			</if>
+		</where>
+	</select>
+	
+	<select id="createOrdersCode" resultType="String">
+		SELECT MAX(SUBSTRING(a.code,10,5)) 
+		FROM orders a 
+		<where>
+			AND a.code LIKE CONCAT('O', #{ymd}, '%')
+		</where>
+	</select>
+	
+</mapper>

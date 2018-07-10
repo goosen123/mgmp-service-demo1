@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.goosen.commons.dao.ProductAttrMapper">
+
+    <sql id="paramsColumns">
+		a.id,
+		a.attrName,
+		a.attrPic,
+		a.attrBrief,
+		a.originalPrice,
+		a.salePrice,
+		a.stockVolume,
+		a.productId,
+		a.createTime,
+		a.updateTime
+	</sql>
+	
+	<select id="findByParams" resultType="map">
+		SELECT 
+			<include refid="paramsColumns"/>
+		FROM product_attr a
+		<where>
+			<if test="attrName != null and attrName != ''">
+				AND a.attrName LIKE CONCAT('%', #{attrName}, '%')
+			</if> 
+			<if test="id != null and id != ''">
+				AND a.id  = #{id}
+			</if>
+		</where>
+	</select>
+	
+</mapper>

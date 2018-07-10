@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.goosen.commons.dao.RoleMapper">
+
+    <sql id="paramsColumns">
+		a.id,
+		a.num,
+		a.pid,
+		a.name,
+		a.tips,
+		a.createTime,
+		a.updateTime
+	</sql>
+	
+	<select id="findByParams" resultType="map">
+		SELECT 
+			<include refid="paramsColumns"/>
+		FROM sys_role a
+		<where>
+			<if test="name != null and name != ''">
+				AND a.name LIKE CONCAT('%', #{name}, '%')
+			</if> 
+			<if test="id != null and id != ''">
+				AND a.id  = #{id}
+			</if>
+		</where>
+	</select>
+	
+</mapper>

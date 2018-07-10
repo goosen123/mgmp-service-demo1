@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.goosen.commons.dao.UserMapper">
+
+    <sql id="paramsColumns">
+		a.id,
+		a.avatar,
+		a.account,
+		a.password,
+		a.userName,
+		a.userSex,
+		a.userEmail,
+		a.userPhone,
+		a.userType,
+		a.status,
+		a.userMoney,
+		a.createTime,
+		a.updateTime
+	</sql>
+	
+	<select id="findByParams" resultType="map">
+		SELECT 
+			<include refid="paramsColumns"/>
+		FROM sys_user a
+		<where>
+			<if test="productTitle != null and productTitle != ''">
+				AND a.productTitle LIKE CONCAT('%', #{productTitle}, '%')
+			</if> 
+			<if test="id != null and id != ''">
+				AND a.id  = #{id}
+			</if>
+			<if test="account != null and account != ''">
+				AND a.account  = #{account}
+			</if>
+			<if test="userType != null and userType != ''">
+				AND a.userType  = #{userType}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status  = #{status}
+			</if>
+		</where>
+	</select>
+	
+</mapper>
