@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.github.pagehelper.PageInfo;
 import com.goosen.commons.model.po.Orders;
+import com.goosen.commons.model.request.orders.OrdersSubItemReqData;
 
 /**
  * 订单接口
@@ -20,5 +21,7 @@ public interface OrdersService extends BaseService<Orders>{
 	Map<String,Object> findOneByParams(Map<String,Object> params);
 	
 	String createOrdersCode();
+	
+	Orders submit(List<OrdersSubItemReqData> itemList,List<Map<String, Object>> productList,List<Map<String, Object>> productAttrList,Map<String,Object> params);
     
 }

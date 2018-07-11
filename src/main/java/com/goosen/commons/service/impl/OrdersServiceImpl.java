@@ -12,9 +12,18 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.goosen.commons.dao.OrdersMapper;
+import com.goosen.commons.dao.OrdersProductMapper;
+import com.goosen.commons.enums.ResultCode;
+import com.goosen.commons.exception.BusinessException;
 import com.goosen.commons.model.po.Orders;
+import com.goosen.commons.model.po.OrdersProduct;
+import com.goosen.commons.model.request.orders.OrdersSubItemReqData;
+import com.goosen.commons.service.OrdersProductService;
 import com.goosen.commons.service.OrdersService;
+import com.goosen.commons.utils.BeanUtil;
 import com.goosen.commons.utils.CommonUtil;
+import com.goosen.commons.utils.IdGenUtil;
+import com.goosen.commons.utils.NumberUtil;
 
 /**
  * 订单接口实现
@@ -27,6 +36,8 @@ public class OrdersServiceImpl extends BaseServiceImpl<Orders> implements Orders
 
     @Autowired
     private OrdersMapper ordersMapper;
+    @Autowired
+    private OrdersProductService ordersProductService;
 
     @Transactional(readOnly=true)
 	@Override
@@ -82,6 +93,49 @@ public class OrdersServiceImpl extends BaseServiceImpl<Orders> implements Orders
 			}
 		}
 		return orderCode;
+	}
+
+	@Override
+	public Orders submit(List<OrdersSubItemReqData> itemList,List<Map<String, Object>> productList,
+			List<Map<String, Object>> productAttrList,Map<String,Object> params) {
+		
+		Orders record = new Orders();
+		//生成订单
+		record.setId(IdGenUtil.uuid());
+		record.setCode(this.createOrdersCode());
+		record.setUserId(CommonUtil.getStrValue(params, "userId"));
+		record.setUserName(CommonUtil.getStrValue(params, "userName"));
+		record.setTotalCost(CommonUtil.getDoubleValue(params, "totalCost"));
+		record.setTotalVolume(CommonUtil.getIntValue(params, "totalVolume"));
+		record.setOrderStatus(0);
+		record.setIsPay(0);
+		record.setOrderRemark(CommonUtil.getStrValue(params, "orderRemark"));
+		this.save(record);
+		//生成订单商品
+		for (int i = 0; i < itemList.size(); i++) {
+			OrdersSubItemReqData ordersSubItemReqData = itemList.get(i);
+			Integer itemVolume = ordersSubItemReqData.getItemVolume();
+			Map<String, Object> productMap = productList.get(i);
+			Map<String, Object> productAttrMap = productAttrList.get(i);
+			Double salePrice = CommonUtil.getDoubleValue(productAttrMap, "salePrice");
+			String productId = CommonUtil.getStrValue(productMap, "id");
+			String productAttrId = CommonUtil.getStrValue(productAttrMap, "id");
+			OrdersProduct ordersProduct = new OrdersProduct();
+			BeanUtil.mapToBean(productMap, ordersProduct);
+			BeanUtil.mapToBean(productAttrMap, ordersProduct);
+			ordersProduct.setId(IdGenUtil.uuid());
+			ordersProduct.setOrderId(record.getId());
+			ordersProduct.setProductId(productId);
+			ordersProduct.setProductAttrId(productAttrId);
+			ordersProduct.setItemVolume(itemVolume);
+			ordersProduct.setItemCost(NumberUtil.multi(salePrice, CommonUtil.getDoubleValue(itemVolume), 2));
+			ordersProductService.save(ordersProduct);
+		}
+		//扣减库存，库存不足回滚？？
+//		if(true)
+//			throw new BusinessException(ResultCode.PARAM_IS_INVALID);
+		
+		return record;
 	}
     
 }
